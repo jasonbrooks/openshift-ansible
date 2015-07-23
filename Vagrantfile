@@ -28,11 +28,25 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     libvirt.cpus = 2
     libvirt.memory = 1024
     libvirt.driver = 'kvm'
+    libvirt.storage :file, :size => '10G'
     override.vm.box = "centos-7.1"
     override.vm.box_url = "https://download.gluster.org/pub/gluster/purpleidea/vagrant/centos-7.1/centos-7.1.box"
     override.vm.box_download_checksum = "b2a9f7421e04e73a5acad6fbaf4e9aba78b5aeabf4230eebacc9942e577c1e05"
     override.vm.box_download_checksum_type = "sha256"
   end
+
+# script to establish lvm-direct storage and put in place missing DEVICE line in ifcfg-eth0
+
+$script = <<SCRIPT
+yum install -y docker
+systemctl start lvm2-lvmetad.service
+echo DEVS="/dev/vdb" > /etc/sysconfig/docker-storage-setup
+echo VG="docker" >> /etc/sysconfig/docker-storage-setup
+docker-storage-setup
+echo 'DEVICE=eth0' >> /etc/sysconfig/network-scripts/ifcfg-eth0
+SCRIPT
+
+  config.vm.provision "shell", inline: $script
 
   num_nodes.times do |n|
     node_index = n+1
