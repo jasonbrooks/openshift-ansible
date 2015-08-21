@@ -65,7 +65,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 $script = <<SCRIPT
 yum install -y docker
 echo DEVS="/dev/vdb" > /etc/sysconfig/docker-storage-setup
-echo VG="docker" >> /etc/sysconfig/docker-storage-setup
 docker-storage-setup
 echo 'DEVICE=eth0' >> /etc/sysconfig/network-scripts/ifcfg-eth0
 SCRIPT
